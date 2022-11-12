@@ -1,5 +1,6 @@
 from random import randint, choice
 import math
+import time
 
 members = []
 omembers = []
@@ -14,27 +15,27 @@ story = open('output.txt', 'a')
 ohaus = {
     "HAUS 1" : {
         "mint" : {
-            "upper" : "",
-            "lower" : ""
+            "upper bunk" : "",
+            "lower bunk" : ""
         },
         "purple" : {
-            "upper" : "",
-            "lower" : "",
+            "upper bunk" : "",
+            "lower bunk" : "",
             "single" : ""
         }
     },
     "HAUS 2" : {
         "orange" : {
-            "upper" : "",
-            "lower" : ""
+            "upper bunk" : "",
+            "lower bunk" : ""
         },
         "pink" : {
-            "upper" : "",
-            "lower" : ""
+            "upper bunk" : "",
+            "lower bunk" : ""
         },
         "yellow" : {
-            "upper" : "",
-            "lower" : "",
+            "upper bunk" : "",
+            "lower bunk" : "",
             "single" : ""
         }
     },
@@ -70,6 +71,7 @@ def pm(memb):
 def p(text):
     story.write(text + "\n")
     print(text)
+    return text
 
 def move(house, membs, hs, move_event=""):
     length = len(membs)
@@ -81,7 +83,9 @@ def move(house, membs, hs, move_event=""):
         if h in hs and h != "seoul":
             for room in house[h]:
                 for bed in house[h][room]:
-                    if house[h][room][bed] == "":
+                    if move_event != "":
+                        beds.append(b(h, room, bed))
+                    elif house[h][room][bed] == "":
                         beds.append(b(h, room, bed))
 
     for m in membs:
@@ -94,10 +98,18 @@ def move(house, membs, hs, move_event=""):
             p("oh dear! it appears we have run out of beds. time to wait for HAUS 3!")
             exit()
         else:
-            haus = edhaus(house, m, bed)
-            beds.remove(bed)
-            p(f"{pm(m)} has moved into {bed.haus}, {bed.room} room, {bed.bed} bed.")
-    
+            if (move_event != "" and bed.haus == move_event) or move_event == "":
+                if move_event != "":
+                    for h in house:
+                        for room in house[h]:
+                            for be in house[h][room]:
+                                if house[h][room][be] == m:
+                                    house[h][room][be] = ""
+                haus = edhaus(house, m, bed)
+                beds.remove(bed)
+                p(f"{pm(m)} has moved into {bed.haus}, {bed.room} room, {bed.bed} bed.")
+            else:
+                haus = house
     return haus
     
 def gravity(membs, units):
@@ -128,59 +140,55 @@ def smove(haus, membs):
                 break
     return haus
 
+def phaus(haus, seoul=False):
+    if seoul:
+        p(f"\nHAUS update: (seoul)")
+    else:
+        p(f"\nHAUS update:")
+    for h in haus:
+        if (h=="seoul") == seoul:
+            for room in haus[h]:
+                str = f"{h}, {room} room: "
+                for bed in haus[h][room]:
+                    if seoul:
+                        str += pm(bed) + ", "
+                    else:
+                        try:
+                            str += pm(haus[h][room][bed]) + ", "
+                        except:
+                            pass
+                if str[-2:] == ", ":
+                    str = str[:-2]
+                p(str)
+
+
 def event(ohaus, haus, omembers, number, hs):
     match number:
         case 5:
             haus = move(haus, [omembers[-1]], hs)
             p("HAUS 1 is full.")
+            phaus(haus)
         case 6:
-            ohaus = {
-                "HAUS 1" : {
-                    "mint" : {
-                        "upper" : "",
-                        "lower" : ""
-                    },
-                    "purple" : {
-                        "upper" : "",
-                        "lower" : "",
-                        "single" : ""
-                    }
-                },
-                "HAUS 2" : {
-                    "orange" : {
-                        "upper" : "",
-                        "lower" : ""
-                    },
-                    "pink" : {
-                        "upper" : "",
-                        "lower" : ""
-                    },
-                    "yellow" : {
-                        "upper" : "",
-                        "lower" : "",
-                        "single" : ""
-                    }
-                },
-                "seoul" : {
-                    "2-1" : [],
-                    "2-2" : [],
-                    "4" : []
-                }
-            }
-            haus = move(ohaus, omembers, ["HAUS 1", "HAUS 2"])
+            haus = move(ohaus, omembers, ["HAUS 1", "HAUS 2"], "HAUS 2")
+            phaus(haus)
         case 8:
             haus = move(haus, [omembers[-1]], hs)
+            phaus(haus)
             omembers = gravity(omembers, ["aaa", "kre"])
             haus = smove(haus, omembers)
+            phaus(haus, True)
         case 12:
             haus = move(haus, [omembers[-1]], hs)
             p("HAUS 1 and 2 are full.")
+            phaus(haus)
         case _:
             haus = move(haus, [omembers[-1]], hs)
 
     return haus
 
 for x in range(len(members)):
+    length = len(members)
+
     # add member to database
     nmemb = choice(members)
     new = memb(x+1, nmemb)
@@ -188,7 +196,12 @@ for x in range(len(members)):
     members.remove(nmemb)
 
     # reveal new member
-    hexc = "#" + hex(randint(0,255))[2:] + hex(randint(0,255))[2:] + hex(randint(0,255))[2:]
+    def genhex():
+        n = hex(randint(0,255))[2:]
+        if len(n) == 1:
+            return "0" + n
+        return n
+    hexc = "#" + genhex() + genhex() + genhex()
     p(f"{prefix}{x+1} is revealed to be {omembers[-1].name}, with color {hexc}.")
 
     # moving
@@ -200,5 +213,8 @@ for x in range(len(members)):
     uhaus = event(ohaus, uhaus, omembers, x+1, hs)
 
     p("")
+
+    if x+1 == length and x+1 not in [5, 6, 8, 12]:
+        phaus(uhaus)
 
 p("to be continued...")
