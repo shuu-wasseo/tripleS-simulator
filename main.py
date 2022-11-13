@@ -260,7 +260,5 @@ for x in range(len(members)):
     om = omembers.copy()
 
     uhaus = event(uhaus, om, x+1, hs, events)
-    
-    p("")
 
 p("to be continued...")
