@@ -1,0 +1,33 @@
+{
+    "HAUS 1": {
+        "purple": {
+            "upper bunk": "",
+            "lower bunk": "",
+            "single": ""
+        },
+        "mint": {
+            "upper bunk": "",
+            "lower bunk": ""
+        }
+    },
+    "HAUS 2": {
+        "orange": {
+            "upper bunk": "",
+            "lower bunk": ""
+        },
+        "pink": {
+            "upper bunk": "",
+            "lower bunk": ""
+        },
+        "yellow": {
+            "upper bunk": "",
+            "lower bunk": "",
+            "single": ""
+        }
+    },
+    "seoul": {
+        "2-1": [],
+        "2-2": [],
+        "4": []
+    }
+}

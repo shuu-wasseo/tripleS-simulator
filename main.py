@@ -1,50 +1,40 @@
 from random import randint, choice
 import math
-import time
+import json
+import toml
 
 members = []
 omembers = []
 
-members = open('input.txt', "r").read().splitlines()
-prefix = members[0]
-members = members[1:]
 open('output.txt', 'w')
 story = open('output.txt', 'a')
 
+# members + events
+config = toml.load(open("config.toml"))
+prefix = config["prefix"]
+members = config["members"]
+
 # HAUS classes + methods
-ohaus = {
-    "HAUS 1" : {
-        "mint" : {
-            "upper bunk" : "",
-            "lower bunk" : ""
-        },
-        "purple" : {
-            "upper bunk" : "",
-            "lower bunk" : "",
-            "single" : ""
-        }
-    },
-    "HAUS 2" : {
-        "orange" : {
-            "upper bunk" : "",
-            "lower bunk" : ""
-        },
-        "pink" : {
-            "upper bunk" : "",
-            "lower bunk" : ""
-        },
-        "yellow" : {
-            "upper bunk" : "",
-            "lower bunk" : "",
-            "single" : ""
-        }
-    },
-    "seoul" : {
-        "2-1" : [],
-        "2-2" : [],
-        "4" : []
-    }
-}
+ohaus = json.load(open("haus.json"))
+
+valid = True
+if "seoul" not in ohaus.keys():
+    valid = False
+else:
+    for room in ohaus["seoul"]:
+        if type(ohaus["seoul"][room]) != list:
+            valid = False
+            break
+    for haus in ohaus:
+        if haus != "seoul":
+            for room in ohaus[haus]:
+                if type(ohaus[haus][room]) != dict:
+                    valid = False
+                    break
+
+if not valid:
+    print("your haus is invalid. please ensure that you have structured each room correctly.")
+    exit()
 
 uhaus = ohaus.copy()
     
@@ -87,7 +77,7 @@ def move(house, membs, hs, move_event=""):
                         beds.append(b(h, room, bed))
                     elif house[h][room][bed] == "":
                         beds.append(b(h, room, bed))
-
+                    
     for m in membs:
         try:
             if move_event != "" and m.serial == length:
@@ -100,6 +90,7 @@ def move(house, membs, hs, move_event=""):
         else:
             if (move_event != "" and bed.haus == move_event) or move_event == "":
                 if move_event != "":
+                    print(house)
                     for h in house:
                         for room in house[h]:
                             for be in house[h][room]:
@@ -115,7 +106,7 @@ def move(house, membs, hs, move_event=""):
 def gravity(membs, units):
     ms = membs.copy()
     p("\ngrand gravity time!")
-    for x in range(math.floor(len(membs)/len(units))):
+    for x in range(math.ceil(len(membs)/len(units))):
         pair = []
         for y in range(len(units)):
             try:
@@ -125,19 +116,40 @@ def gravity(membs, units):
             else:
                 pair.append(pm(picked))
                 membs.remove(picked)
-        p(f"{pair[0]} in {units[0]}, {pair[1]} in {units[1]}")
+        str = ""
+        for x in range(len(units)):
+            try:
+                str += f"{pair[x]} in {units[x]}, "
+            except:
+                pass
+        str = str[:-2]
+        p(str)
     return ms
 
-def smove(haus, membs):
+def csbeds(haus, c):
+    count = 0
+    for room in haus["seoul"]:
+        count += len(haus["seoul"][room])
+    if count >= c:
+        return True
+    else:
+        return False
+
+def smove(haus, members):
     haus = haus.copy()
+    membs = members.copy()
     p("\nmoving into seoul HAUS!")
     for m in membs:
+        if csbeds(haus, sum([int(room[0]) for room in list(haus["seoul"].keys())])):
+            p("oh dear! the seoul HAUS does not have enough beds. time to wait for a renovation!")
+            exit() 
         while 1:
             new = choice(list(haus["seoul"].keys()))
             if len(haus["seoul"][new]) < int(new.split("-")[0]):
                 haus["seoul"][new].append(m)
                 p(f"{pm(m)} has moved into room {new} in the seoul HAUS.")
                 break
+
     return haus
 
 def phaus(haus, seoul=False):
@@ -161,36 +173,66 @@ def phaus(haus, seoul=False):
                     str = str[:-2]
                 p(str)
 
+def full(uhaus, hs):
+    full = True
+    for haus in uhaus:
+        if haus in hs:
+            for room in uhaus[haus]:
+                for bed in uhaus[haus][room]:
+                    if uhaus[haus][room][bed] == "":
+                        full = False
 
-def event(ohaus, haus, omembers, number, hs):
-    match number:
-        case 5:
-            haus = move(haus, [omembers[-1]], hs)
-            p("HAUS 1 is full.")
-            phaus(haus)
-        case 6:
-            haus = move(ohaus, omembers, ["HAUS 1", "HAUS 2"], "HAUS 2")
-            phaus(haus)
-        case 8:
-            haus = move(haus, [omembers[-1]], hs)
-            phaus(haus)
-            omembers = gravity(omembers, ["aaa", "kre"])
-            haus = smove(haus, omembers)
-            phaus(haus, True)
-        case 12:
-            haus = move(haus, [omembers[-1]], hs)
-            p("HAUS 1 and 2 are full.")
-            phaus(haus)
-        case _:
-            haus = move(haus, [omembers[-1]], hs)
+    return full
+
+def cbeds(uhaus, hs):
+    count = 0
+    for haus in uhaus:
+        if haus in hs:
+            for room in uhaus[haus]:
+                for bed in uhaus[haus][room]:
+                    count += 1
+    
+    return count
+
+def event(haus, omembers, number, hs, events):
+    if number == cbeds(uhaus, hs) + 1:
+        events.append(["mmove"])
+
+    if len(events) == 0:
+        haus = move(haus, [omembers[-1]], hs)
+    
+    for e in events: 
+        match e[0]:
+            case "mmove":
+                haus = move(haus, [omembers[-1]], hs, hs[-1])
+                phaus(haus)
+            case "gravity":
+                haus = move(haus, [omembers[-1]], hs)
+                phaus(haus)
+                omembers = gravity(omembers, e[1])
+                haus = smove(haus, omembers)
+                phaus(haus, True)
+                
+    p("")
+
+    if number == cbeds(uhaus, hs):
+        p(f"{hs} is/are full.")
+
+    if csbeds(uhaus, sum([int(room[0]) for room in list(haus["seoul"].keys())])):
+        p(f"the seoul HAUS is full.")
 
     return haus
 
+length = len(members)
+
 for x in range(len(members)):
-    length = len(members)
+    events = []
 
     # add member to database
-    nmemb = choice(members)
+    if config["random"]:
+        nmemb = choice(members)
+    else:
+        nmemb = members[0]
     new = memb(x+1, nmemb)
     omembers.append(new)
     members.remove(nmemb)
@@ -205,16 +247,21 @@ for x in range(len(members)):
     p(f"{prefix}{x+1} is revealed to be {omembers[-1].name}, with color {hexc}.")
 
     # moving
-    if x+1 <= 5:
-        hs = ["HAUS 1"]
-    elif x+1 <= 12:
-        hs = ["HAUS 1", "HAUS 2"]
+    hauses = list(dict.keys(ohaus))
+    hauses.remove("seoul")
+    for y in range(len(hauses)):
+        if x+1 <= cbeds(uhaus, hauses[:y+1]):
+            hs = hauses[:y+1]
+            break
 
-    uhaus = event(ohaus, uhaus, omembers, x+1, hs)
+    for grav in config["gravity"]:
+        if x+1 == int(grav[0]):
+            events.append(["gravity", grav[1:]])
+    
+    om = omembers.copy()
 
+    uhaus = event(uhaus, om, x+1, hs, events)
+    
     p("")
-
-    if x+1 == length and x+1 not in [5, 6, 8, 12]:
-        phaus(uhaus)
 
 p("to be continued...")
