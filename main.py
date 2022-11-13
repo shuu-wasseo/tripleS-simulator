@@ -2,6 +2,7 @@ from random import randint, choice
 import math
 import json
 import toml
+from prettytable import PrettyTable
 
 members = []
 omembers = []
@@ -43,17 +44,22 @@ class b:
         self.haus = haus
         self.room = room
         self.bed = bed
-
+        
 def edhaus(haus, memb, bed):
     dic = haus
     dic[bed.haus][bed.room][bed.bed] = memb
     return dic 
 
+def pb(bed):
+    return f"{bed.haus}, {bed.room}, {bed.bed}"
+
 # member classes + methods
 class memb:
-    def __init__(self, serial, name):
+    def __init__(self, serial, name, gravity, beds):
         self.serial = serial
         self.name = name
+        self.beds = beds
+        self.gravity = gravity
 
 def pm(memb):
     return f"{prefix}{memb.serial} {memb.name}"
@@ -98,8 +104,10 @@ def move(house, membs, hs, move_event=""):
                 haus = edhaus(house, m, bed)
                 beds.remove(bed)
                 p(f"{pm(m)} has moved into {bed.haus}, {bed.room} room, {bed.bed} bed.")
+                m.beds.append(bed)
             else:
                 haus = house
+                m.beds.append(m.beds[-1])
     return haus
     
 def gravity(membs, units):
@@ -113,12 +121,13 @@ def gravity(membs, units):
             except:
                 pass
             else:
-                pair.append(pm(picked))
+                pair.append(picked)
                 membs.remove(picked)
         str = ""
-        for x in range(len(units)):
+        for y in range(len(units)):
             try:
-                str += f"{pair[x]} in {units[x]}, "
+                str += f"{pm(pair[y])} in {units[y]}, "
+                pair[y].gravity.append(units[y])
             except:
                 pass
         str = str[:-2]
@@ -197,8 +206,8 @@ def cbeds(uhaus, hs):
     
     return count
 
-def event(haus, omembers, number, hs, events):
-    if number == cbeds(uhaus, hs[:-1]) + 1:
+def event(haus, omembers, number, hs, events, gravities, mmoves):
+    if number == cbeds(uhaus, hs[:-1]) + 1 and len(hs) > 1:
         events.append(["mmove"])
 
     if len(events) == 0:
@@ -207,9 +216,11 @@ def event(haus, omembers, number, hs, events):
     for e in events: 
         match e[0]:
             case "mmove":
+                mmoves += 1
                 haus = move(haus, omembers, hs, hs[-1])
                 phaus(haus)
             case "gravity":
+                gravities += 1
                 haus = move(haus, [omembers[-1]], hs)
                 phaus(haus)
                 omembers = gravity(omembers, e[1])
@@ -219,14 +230,17 @@ def event(haus, omembers, number, hs, events):
     p("")
 
     if number == cbeds(uhaus, hs):
-        p(f"{hs} is/are full.")
+        p(f"{hs} is/are full.\n")
 
     if csbeds(uhaus, sum([int(room[0]) for room in list(haus["seoul"].keys())])):
         p(f"the seoul HAUS is full.\n")
 
-    return haus
+    return haus, gravities, mmoves
 
 length = len(members)
+
+gravities = 0
+mmoves = 1
 
 for x in range(len(members)):
     events = []
@@ -236,7 +250,7 @@ for x in range(len(members)):
         nmemb = choice(members)
     else:
         nmemb = members[0]
-    new = memb(x+1, nmemb)
+    new = memb(x+1, nmemb, [], [])
     omembers.append(new)
     members.remove(nmemb)
 
@@ -263,8 +277,50 @@ for x in range(len(members)):
     
     om = omembers.copy()
 
-    uhaus = event(uhaus, om, x+1, hs, events)
+    lis = event(uhaus, om, x+1, hs, events, gravities, mmoves)
+    uhaus = lis[0]
+    gravities = lis[1]
+    mmoves = lis[2]
 
 p("to be continued...")
 phaus(uhaus, False, True)
 phaus(uhaus, True, True)
+
+# summary table
+print("")
+maxg = 0
+maxm = 0
+
+for memb in omembers:
+    if len(memb.gravity) > maxg:
+        maxg = len(memb.gravity)
+    if len(memb.beds) > maxm:
+        maxm = len(memb.beds)
+
+for memb in omembers:
+    while len(memb.gravity) < maxg:
+        memb.gravity = [""] + memb.gravity
+    while len(memb.beds) < maxm:
+        memb.beds = [""] + memb.beds
+
+gs = []
+bs = []
+
+for x in range(maxm):
+    gs.append(f"unit {x+1}")
+for x in range(maxg):
+    bs.append(f"bed {x+1}")
+
+tab = PrettyTable(["name", "serial"] + gs + bs)
+
+for m in omembers:
+    beds = []
+    for bed in m.beds:
+        if bed != "":
+            beds.append(pb(bed))
+        else:
+            beds.append('')
+    row = [m.name, m.serial] + m.gravity + beds
+    tab.add_row(row)
+    
+print(tab)
