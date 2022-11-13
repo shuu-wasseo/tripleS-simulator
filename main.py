@@ -51,7 +51,7 @@ def edhaus(haus, memb, bed):
     return dic 
 
 def pb(bed):
-    return f"{bed.haus}, {bed.room}, {bed.bed}"
+    return f"{bed.haus}, {bed.room} room, {bed.bed} bed"
 
 # member classes + methods
 class memb:
@@ -102,7 +102,7 @@ def move(house, membs, hs, move_event=""):
                                     house[h][room][be] = ""
                 haus = edhaus(house, m, bed)
                 beds.remove(bed)
-                p(f"{pm(m)} has moved into {bed.haus}, {bed.room} room, {bed.bed} bed.")
+                p(f"{pm(m)} has moved into {pb(bed)}.")
                 m.beds.append(bed)
             else:
                 haus = house
