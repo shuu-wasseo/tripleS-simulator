@@ -3,6 +3,7 @@ import math
 import json
 import toml
 from prettytable import PrettyTable
+from colors import color
 
 members = []
 omembers = []
@@ -50,16 +51,28 @@ def edhaus(haus, memb, bed):
     dic[bed.haus][bed.room][bed.bed] = memb
     return dic 
 
+def croom(room):
+    try:
+        room = color(room, "white", room)
+    except:
+        if room == "mint":
+            room = color(room, "white", "#98ff98")
+        else:
+            room = room
+    return room
+
 def pb(bed):
-    return f"{bed.haus}, {bed.room} room, {bed.bed} bed"
+    return f"{bed.haus}, {croom(bed.room)} room, {bed.bed} bed"
 
 # member classes + methods
 class memb:
-    def __init__(self, serial, name, gravity, beds):
+    def __init__(self, serial, name, gravity, beds, seoul, color):
         self.serial = serial
         self.name = name
         self.beds = beds
         self.gravity = gravity
+        self.seoul = seoul
+        self.color = color
 
 def pm(memb):
     return f"{prefix}{memb.serial} {memb.name}"
@@ -72,6 +85,7 @@ def p(text):
 def move(house, membs, hs, move_event=""):
     length = len(membs)
     if len(membs) > 1:
+        tab = PrettyTable(["member", "room"])
         p("\nmass moving event!")
     
     beds = []
@@ -92,6 +106,7 @@ def move(house, membs, hs, move_event=""):
                 bed = choice(beds)
         except:
             p("oh dear! it appears we have run out of beds. time to wait for HAUS 3!")
+            return  
         else:
             if (move_event != "" and bed.haus == move_event) or move_event == "":
                 if move_event != "":
@@ -102,14 +117,19 @@ def move(house, membs, hs, move_event=""):
                                     house[h][room][be] = ""
                 haus = edhaus(house, m, bed)
                 beds.remove(bed)
-                p(f"{pm(m)} has moved into {pb(bed)}.")
+                if len(membs) > 1:
+                    tab.add_row([pm(m), pb(bed)])
                 m.beds.append(bed)
             else:
                 haus = house
                 m.beds.append(m.beds[-1])
+
+    if len(membs) > 1:
+        p(tab)
     return haus
     
 def gravity(membs, units):
+    tab = PrettyTable(units)
     ms = membs.copy()
     p("\ngrand gravity time!")
     for x in range(math.ceil(len(membs)/len(units))):
@@ -122,15 +142,13 @@ def gravity(membs, units):
             else:
                 pair.append(picked)
                 membs.remove(picked)
-        str = ""
+        tab.add_row([pm(m) for m in pair])
         for y in range(len(units)):
             try:
-                str += f"{pm(pair[y])} in {units[y]}, "
                 pair[y].gravity.append(units[y])
             except:
                 pass
-        str = str[:-2]
-        p(str)
+    p(tab)
     return ms
 
 def csbeds(haus, c):
@@ -143,6 +161,7 @@ def csbeds(haus, c):
         return False
 
 def smove(haus, members):
+    tab = PrettyTable(["member", "room"])
     haus = haus.copy()
     membs = members.copy()
     p("\nmoving into seoul HAUS!")
@@ -154,9 +173,11 @@ def smove(haus, members):
             new = choice(list(haus["seoul"].keys()))
             if len(haus["seoul"][new]) < int(new.split("-")[0]):
                 haus["seoul"][new].append(m)
-                p(f"{pm(m)} has moved into room {new} in the seoul HAUS.")
+                m.seoul.append(new)
+                tab.add_row([pm(m), new])
                 break
 
+    p(tab)
     return haus
 
 def phaus(haus, seoul=False, final=False):
@@ -168,21 +189,22 @@ def phaus(haus, seoul=False, final=False):
         p(str.replace("HAUS update", "final HAUS"))
     else:
         p(str)
+    tab = PrettyTable(["room", "members"])
     for h in haus:
         if (h=="seoul") == seoul:
             for room in haus[h]:
-                str = f"{h}, {room} room: "
+                row = [f"{h}, {croom(room)} room", ""]
                 for bed in haus[h][room]:
                     if seoul:
-                        str += pm(bed) + ", "
+                        row[-1] += pm(bed) + ", "
                     else:
                         try:
-                            str += pm(haus[h][room][bed]) + ", "
+                            row[-1] += pm(haus[h][room][bed]) + ", "
                         except:
                             pass
-                if str[-2:] == ", ":
-                    str = str[:-2]
-                p(str)
+                row[-1] = row[-1][:-2]
+                tab.add_row(row)
+    p(tab)
 
 def full(uhaus, hs):
     full = True
@@ -205,36 +227,44 @@ def cbeds(uhaus, hs):
     
     return count
 
-def event(haus, omembers, number, hs, events, gravities, mmoves):
+def event(haus, omembers, number, hs, events, gravities, mmoves, tab):
     if number == cbeds(uhaus, hs[:-1]) + 1 and len(hs) > 1:
         events.append(["mmove"])
 
     if len(events) == 0:
         haus = move(haus, [omembers[-1]], hs)
+        tab.add_row([pm(omembers[-1]), color(omembers[-1].color, "white", omembers[-1].color), pb(omembers[-1].beds[-1])])
     
+    moved = False
+            
     for e in events: 
         match e[0]:
             case "mmove":
                 mmoves += 1
+                tab.add_row([pm(omembers[-1]), color(omembers[-1].color, "white", omembers[-1].color), "TBC"])
+                p(f"new wave of {prefix}!")
+                p(tab)
+                tab = PrettyTable(["member", "color", "bed"])
+                moved = True
                 haus = move(haus, omembers, hs, hs[-1])
                 phaus(haus)
             case "gravity":
                 gravities += 1
                 haus = move(haus, [omembers[-1]], hs)
+                if not moved:
+                    tab.add_row([pm(omembers[-1]), color(omembers[-1].color, "white", omembers[-1].color), pb(omembers[-1].beds[-1])])
+                    p(f"new wave of {prefix}!")
+                    p(tab)
+                    tab = PrettyTable(["member", "color", "bed"])
                 phaus(haus)
                 omembers = gravity(omembers, e[1])
                 haus = smove(haus, omembers)
                 phaus(haus, True)
                 
-    p("")
-
-    if number == cbeds(uhaus, hs):
-        p(f"{hs} is/are full.\n")
-
-    if csbeds(uhaus, sum([int(room[0]) for room in list(haus["seoul"].keys())])):
+    if csbeds(uhaus, sum([int(room[0]) for room in list(haus["seoul"].keys())])) and len(events) > 0:
         p(f"the seoul HAUS is full.\n")
 
-    return haus, gravities, mmoves
+    return haus, gravities, mmoves, tab
 
 def summary():
     p("")
@@ -256,21 +286,23 @@ def summary():
     gs = []
     bs = []
 
-    for x in range(maxm):
-        gs.append(f"unit {x+1}")
     for x in range(maxg):
-        bs.append(f"bed {x+1}")
+        gs.append(f"unit {x+1}")
+    for x in range(maxm):
+        bs += [f"haus {x+1}", f"room {x+1}", f"bed {x+1}"]
 
-    tab = PrettyTable(["name", "serial"] + gs + bs)
-
+    tab = PrettyTable(["name", "serial", "color"] + gs + bs + ["seoul"])
+    
     for m in omembers:
         beds = []
         for bed in m.beds:
             if bed != "":
-                beds.append(pb(bed))
+                beds += [bed.haus, croom(bed.room), bed.bed]
             else:
-                beds.append('')
-        row = [m.name, prefix + str(m.serial)] + m.gravity + beds
+                beds += ["", "", ""]
+        if m.seoul == []:
+            m.seoul = [""]
+        row = [m.name, prefix + str(m.serial), color(m.color, "white", m.color)] + m.gravity + beds + m.seoul
         tab.add_row(row)
         
     p(tab)
@@ -279,6 +311,7 @@ length = len(members)
 
 gravities = 0
 mmoves = 1
+tab = PrettyTable(["member", "color", "bed"])
 
 for x in range(len(members)):
     events = []
@@ -288,7 +321,7 @@ for x in range(len(members)):
         nmemb = choice(members)
     else:
         nmemb = members[0]
-    new = memb(x+1, nmemb, [], [])
+    new = memb(x+1, nmemb, [], [], [], "")
     omembers.append(new)
     members.remove(nmemb)
 
@@ -299,8 +332,8 @@ for x in range(len(members)):
             return "0" + n
         return n
     hexc = "#" + genhex() + genhex() + genhex()
-    p(f"{prefix}{x+1} is revealed to be {omembers[-1].name}, with color {hexc}.")
-
+    omembers[-1].color = hexc
+            
     # moving
     hauses = list(dict.keys(ohaus))
     hauses.remove("seoul")
@@ -315,11 +348,13 @@ for x in range(len(members)):
     
     om = omembers.copy()
 
-    lis = event(uhaus, om, x+1, hs, events, gravities, mmoves)
+    lis = event(uhaus, om, x+1, hs, events, gravities, mmoves, tab)
     uhaus = lis[0]
     gravities = lis[1]
     mmoves = lis[2]
+    tab = lis[3]
 
+    
 p("to be continued...")
 phaus(uhaus, False, True)
 phaus(uhaus, True, True)
