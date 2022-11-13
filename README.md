@@ -13,7 +13,7 @@ before you begin, remember to input the necessary data in config.toml.
 - random: a boolean value to decide whether the member reveals go in the order or the given list, or are random.
 - gravity: a list of lists. each mini-list should contain the number of members (as a string) at which to start a gravity, followed by all the names of the units to shuffle the members into.
 
-default values that can serve as examples have been provided.
+default values that can serve as examples have been provided and the simulator can run with these values.
 
 ## haus.json
 this json file represents the structure of the haus. 
