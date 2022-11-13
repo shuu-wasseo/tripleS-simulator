@@ -151,11 +151,15 @@ def smove(haus, members):
 
     return haus
 
-def phaus(haus, seoul=False):
+def phaus(haus, seoul=False, final=False):
     if seoul:
-        p(f"\nHAUS update: (seoul)")
+        str = f"\nHAUS update: (seoul)"
     else:
-        p(f"\nHAUS update:")
+        str = f"\nHAUS update:"
+    if final:
+        p(str.replace("HAUS update", "final HAUS"))
+    else:
+        p(str)
     for h in haus:
         if (h=="seoul") == seoul:
             for room in haus[h]:
@@ -218,7 +222,7 @@ def event(haus, omembers, number, hs, events):
         p(f"{hs} is/are full.")
 
     if csbeds(uhaus, sum([int(room[0]) for room in list(haus["seoul"].keys())])):
-        p(f"the seoul HAUS is full.")
+        p(f"the seoul HAUS is full.\n")
 
     return haus
 
@@ -262,3 +266,5 @@ for x in range(len(members)):
     uhaus = event(uhaus, om, x+1, hs, events)
 
 p("to be continued...")
+phaus(uhaus, False, True)
+phaus(uhaus, True, True)
