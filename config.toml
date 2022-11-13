@@ -1,7 +1,5 @@
-#"prefix" = "S"
-#"members" = ["ysy", "jhr", "ljw", "kcy", "kyy", "ksm", "knk", "gyb", "ked"]
-"prefix" = "L"
-"members" = ["heejin", "hyunjin", "haseul", "yeojin", "vivi", "kimlip", "jinsoul", "choerry", "yves", "chuu", "gowon", "hyejoo"]
+"prefix" = "S"
+"members" = ["ysy", "jhr", "ljw", "kcy", "kyy", "ksm", "knk", "gyb", "ked"]
 "random" = false
 "gravity" = [
     ["8", "aaa", "kre"],
