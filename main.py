@@ -15,6 +15,7 @@ story = open('output.txt', 'a')
 config = toml.load(open("config.toml"))
 prefix = config["prefix"]
 members = config["members"]
+colors = config["colors"]
 
 # HAUS classes + methods
 ohaus = json.load(open("haus.json"))
@@ -53,13 +54,11 @@ def edhaus(haus, memb, bed):
 
 def croom(room):
     try:
-        room = color(room, "white", room)
+        rm = color(room, "white", [x[1] for x in colors if x[0] == room][0])
     except:
-        if room == "mint":
-            room = color(room, "white", "#98ff98")
-        else:
-            room = room
-    return room
+        return room
+    else:
+        return rm
 
 def pb(bed):
     return f"{bed.haus}, {croom(bed.room)} room, {bed.bed} bed"
@@ -166,16 +165,21 @@ def smove(haus, members):
     membs = members.copy()
     p("\nmoving into seoul HAUS!")
     for m in membs:
-        if csbeds(haus, sum([int(room[0]) for room in list(haus["seoul"].keys())])):
-            p("oh dear! the seoul HAUS does not have enough beds. time to wait for a renovation!")
-            break
-        while 1:
-            new = choice(list(haus["seoul"].keys()))
-            if len(haus["seoul"][new]) < int(new.split("-")[0]):
-                haus["seoul"][new].append(m)
-                m.seoul.append(new)
-                tab.add_row([pm(m), new])
+        found = False
+        for x in haus["seoul"]:
+            if m in haus["seoul"][x]:
+                found = True
+        if not found:
+            if csbeds(haus, sum([int(room[0]) for room in list(haus["seoul"].keys())])):
+                p("oh dear! the seoul HAUS does not have enough beds. time to wait for a renovation!")
                 break
+            while 1:
+                new = choice(list(haus["seoul"].keys()))
+                if len(haus["seoul"][new]) < int(new.split("-")[0]):
+                    haus["seoul"][new].append(m)
+                    m.seoul.append(new)
+                    tab.add_row([pm(m), new])
+                    break
 
     p(tab)
     return haus
@@ -270,6 +274,7 @@ def summary():
     p("")
     maxg = 0
     maxm = 0
+    maxs = 0
 
     for memb in omembers:
         if len(memb.gravity) > maxg:
