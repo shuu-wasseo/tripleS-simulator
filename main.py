@@ -320,7 +320,7 @@ for m in omembers:
             beds.append(pb(bed))
         else:
             beds.append('')
-    row = [m.name, prefix + m.serial] + m.gravity + beds
+    row = [m.name, prefix + str(m.serial)] + m.gravity + beds
     tab.add_row(row)
     
 print(tab)
