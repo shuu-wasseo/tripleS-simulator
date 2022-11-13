@@ -65,7 +65,7 @@ def pm(memb):
     return f"{prefix}{memb.serial} {memb.name}"
        
 def p(text):
-    story.write(text + "\n")
+    story.write(str(text) + "\n")
     print(text)
     return text
 
@@ -92,7 +92,6 @@ def move(house, membs, hs, move_event=""):
                 bed = choice(beds)
         except:
             p("oh dear! it appears we have run out of beds. time to wait for HAUS 3!")
-            exit()
         else:
             if (move_event != "" and bed.haus == move_event) or move_event == "":
                 if move_event != "":
@@ -150,7 +149,7 @@ def smove(haus, members):
     for m in membs:
         if csbeds(haus, sum([int(room[0]) for room in list(haus["seoul"].keys())])):
             p("oh dear! the seoul HAUS does not have enough beds. time to wait for a renovation!")
-            exit() 
+            break
         while 1:
             new = choice(list(haus["seoul"].keys()))
             if len(haus["seoul"][new]) < int(new.split("-")[0]):
@@ -237,6 +236,45 @@ def event(haus, omembers, number, hs, events, gravities, mmoves):
 
     return haus, gravities, mmoves
 
+def summary():
+    p("")
+    maxg = 0
+    maxm = 0
+
+    for memb in omembers:
+        if len(memb.gravity) > maxg:
+            maxg = len(memb.gravity)
+        if len(memb.beds) > maxm:
+            maxm = len(memb.beds)
+
+    for memb in omembers:
+        while len(memb.gravity) < maxg:
+            memb.gravity = [""] + memb.gravity
+        while len(memb.beds) < maxm:
+            memb.beds = [""] + memb.beds
+
+    gs = []
+    bs = []
+
+    for x in range(maxm):
+        gs.append(f"unit {x+1}")
+    for x in range(maxg):
+        bs.append(f"bed {x+1}")
+
+    tab = PrettyTable(["name", "serial"] + gs + bs)
+
+    for m in omembers:
+        beds = []
+        for bed in m.beds:
+            if bed != "":
+                beds.append(pb(bed))
+            else:
+                beds.append('')
+        row = [m.name, prefix + str(m.serial)] + m.gravity + beds
+        tab.add_row(row)
+        
+    p(tab)
+
 length = len(members)
 
 gravities = 0
@@ -287,40 +325,4 @@ phaus(uhaus, False, True)
 phaus(uhaus, True, True)
 
 # summary table
-print("")
-maxg = 0
-maxm = 0
-
-for memb in omembers:
-    if len(memb.gravity) > maxg:
-        maxg = len(memb.gravity)
-    if len(memb.beds) > maxm:
-        maxm = len(memb.beds)
-
-for memb in omembers:
-    while len(memb.gravity) < maxg:
-        memb.gravity = [""] + memb.gravity
-    while len(memb.beds) < maxm:
-        memb.beds = [""] + memb.beds
-
-gs = []
-bs = []
-
-for x in range(maxm):
-    gs.append(f"unit {x+1}")
-for x in range(maxg):
-    bs.append(f"bed {x+1}")
-
-tab = PrettyTable(["name", "serial"] + gs + bs)
-
-for m in omembers:
-    beds = []
-    for bed in m.beds:
-        if bed != "":
-            beds.append(pb(bed))
-        else:
-            beds.append('')
-    row = [m.name, prefix + str(m.serial)] + m.gravity + beds
-    tab.add_row(row)
-    
-print(tab)
+summary()
