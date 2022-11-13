@@ -12,6 +12,7 @@ before you begin, remember to input the necessary data in config.toml.
 - members: a list containing all the names of the (potential) members.
 - random: a boolean value to decide whether the member reveals go in the order or the given list, or are random.
 - gravity: a list of lists. each mini-list should contain the number of members (as a string) at which to start a gravity, followed by all the names of the units to shuffle the members into.
+- colors: a list of lists. each mini-list should contain a color (assuming you have color-named rooms in the HAUS), and a hex code corresponding to each color.
 
 default values that can serve as examples have been provided and the simulator can run with these values.
 
