@@ -90,7 +90,6 @@ def move(house, membs, hs, move_event=""):
         else:
             if (move_event != "" and bed.haus == move_event) or move_event == "":
                 if move_event != "":
-                    print(house)
                     for h in house:
                         for room in house[h]:
                             for be in house[h][room]:
@@ -195,7 +194,7 @@ def cbeds(uhaus, hs):
     return count
 
 def event(haus, omembers, number, hs, events):
-    if number == cbeds(uhaus, hs) + 1:
+    if number == cbeds(uhaus, hs[:-1]) + 1:
         events.append(["mmove"])
 
     if len(events) == 0:
@@ -204,7 +203,7 @@ def event(haus, omembers, number, hs, events):
     for e in events: 
         match e[0]:
             case "mmove":
-                haus = move(haus, [omembers[-1]], hs, hs[-1])
+                haus = move(haus, omembers, hs, hs[-1])
                 phaus(haus)
             case "gravity":
                 haus = move(haus, [omembers[-1]], hs)
