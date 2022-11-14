@@ -70,7 +70,7 @@ def move(house, membs, hs, move_event=""):
     length = len(membs)
     if len(membs) > 1:
         tab = PrettyTable(["member", "room"])
-        p("\nmass moving event!")
+        p("\nmoving time!")
     
     beds = []
     for h in house:
@@ -86,7 +86,6 @@ def move(house, membs, hs, move_event=""):
         found = False
         if hs == "seoul":
             for room in house["seoul"]:
-                print(house["seoul"][room])
                 for bed in house["seoul"][room]:
                     if house["seoul"][room][bed] == m:
                         found = True
