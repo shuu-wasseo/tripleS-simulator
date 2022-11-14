@@ -4,6 +4,7 @@ import json
 import toml
 from prettytable import PrettyTable
 from colors import color
+from plotext import tw
 
 members = []
 omembers = []
@@ -194,7 +195,13 @@ def cbeds(uhaus, hs):
     
     return count
 
-def event(haus, omembers, number, hs, events, gravities, mmoves, tab):
+def brk():
+    str = ""
+    for x in range(tw()):
+        str += "-"
+    return str
+
+def event(haus, omembers, number, hs, events, gravities, mmoves, tab, wave):
     if number == cbeds(uhaus, hs[:-1]) + 1 and len(hs) > 1:
         events.append(["mmove"])
 
@@ -213,29 +220,35 @@ def event(haus, omembers, number, hs, events, gravities, mmoves, tab):
             case "mmove":
                 mmoves += 1
                 tab.add_row([pm(omembers[-1]), color(omembers[-1].color, "white", omembers[-1].color), "TBC"])
+                wave += 1
                 p(f"new wave of {prefix}!")
+                p(f"wave {str(wave)}:")
                 p(tab)
                 tab = PrettyTable(["member", "color", "bed"])
                 moved = True
                 haus = move(haus, omembers, hs, hs[-1])
                 phaus(haus)
+                p(brk())
             case "gravity":
                 gravities += 1
                 haus = move(haus, [omembers[-1]], hs)
                 if not moved:
                     tab.add_row([pm(omembers[-1]), color(omembers[-1].color, "white", omembers[-1].color), pb(omembers[-1].beds[-1])])
+                    wave += 1
                     p(f"new wave of {prefix}!")
+                    p(f"wave {str(wave)}:")
                     p(tab)
                     tab = PrettyTable(["member", "color", "bed"])
                 phaus(haus)
                 omembers = gravity(omembers, e[1])
                 haus = move(haus, omembers, "seoul")
                 phaus(haus, True)
+                p(brk())
     
     if full(ohaus, "seoul") and len(events) > 0:
         p(f"the seoul HAUS is full.\n")
 
-    return haus, gravities, mmoves, tab
+    return haus, gravities, mmoves, tab, wave
 
 def summary():
     p("")
@@ -280,10 +293,15 @@ def summary():
         
     p(tab)
 
+# main code
+
+print()
+
 length = len(members)
 
 gravities = 0
 mmoves = 1
+wave = 0
 tab = PrettyTable(["member", "color", "bed"])
 
 for x in range(len(members)):
@@ -321,11 +339,12 @@ for x in range(len(members)):
     
     om = omembers.copy()
 
-    lis = event(uhaus, om, x+1, hs, events, gravities, mmoves, tab)
+    lis = event(uhaus, om, x+1, hs, events, gravities, mmoves, tab, wave)
     uhaus = lis[0]
     gravities = lis[1]
     mmoves = lis[2]
     tab = lis[3]
+    wave = lis[4]
 
     
 p("to be continued...")
