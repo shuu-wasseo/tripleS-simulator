@@ -105,7 +105,7 @@ def move(house, membs, hs, move_event=""):
                 bed = choice(beds)
         except:
             p("oh dear! it appears we have run out of beds. time to wait for HAUS 3!")
-            return  
+            return house 
         else:
             if (move_event != "" and bed.haus == move_event) or move_event == "":
                 if move_event != "":
@@ -237,7 +237,11 @@ def event(haus, omembers, number, hs, events, gravities, mmoves, tab):
 
     if len(events) == 0:
         haus = move(haus, [omembers[-1]], hs)
-        tab.add_row([pm(omembers[-1]), color(omembers[-1].color, "white", omembers[-1].color), pb(omembers[-1].beds[-1])])
+        try:
+            bed = pb(omembers[-1].beds[-1])
+        except:
+            bed = ""
+        tab.add_row([pm(omembers[-1]), color(omembers[-1].color, "white", omembers[-1].color), bed])
     
     moved = False
             
@@ -264,7 +268,7 @@ def event(haus, omembers, number, hs, events, gravities, mmoves, tab):
                 omembers = gravity(omembers, e[1])
                 haus = smove(haus, omembers)
                 phaus(haus, True)
-                
+    
     if csbeds(uhaus, sum([int(room[0]) for room in list(haus["seoul"].keys())])) and len(events) > 0:
         p(f"the seoul HAUS is full.\n")
 
