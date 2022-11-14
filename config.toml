@@ -4,3 +4,9 @@
 "gravity" = [
     ["8", "aaa", "kre"]
 ]
+"colors" = [
+    ["orange", "#ff8000"],
+    ["yellow", "#ffff00"],
+    ["mint", "#00ff80"],
+    []
+]
