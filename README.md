@@ -3,7 +3,16 @@ welcome to tripleS-simulator. instructions are as follows:
 
 ## requirements
 - python 3.10 and above
-- python toml library
+
+## installation
+for windows:
+```
+make install-win
+```
+for mac/linux:
+```
+make install-linux
+```
 
 ## config.toml
 before you begin, remember to input the necessary data in config.toml.
