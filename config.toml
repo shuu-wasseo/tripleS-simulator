@@ -2,6 +2,5 @@
 "members" = ["ysy", "jhr", "ljw", "kcy", "kyy", "ksm", "knk", "gyb", "ked"]
 "random" = false
 "gravity" = [
-    ["8", "aaa", "kre"],
-    ["12", "1/3", "oec", "yyxy"]
+    ["8", "aaa", "kre"]
 ]
