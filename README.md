@@ -72,4 +72,8 @@ for example, based on the default HAUS:
 after your group reaches a certain number of members (specified in config.toml), a gravity (or grand gravity) will be initiated. gravity cannot be customised or controlled in any way, and every unit is assigned members at random. however, the number of members in every unit is as equal as possible.
 
 ## notes
+### members joining during dimension
 we have been made aware that if new members join during dimension, the members will move into the seoul HAUS with the other members first. however, we do not intend to put this in place at the moment.
+
+### second seoul HAUS
+at the moment, we do not know what the second seoul HAUS looks like but when it is revealed, we will have a revamp to the haus.json file structure.
