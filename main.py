@@ -203,7 +203,7 @@ def brk():
 
 def event(haus, omembers, number, hs, events, gravities, mmoves, tab, wave):
     if number == cbeds(uhaus, hs[:-1]) + 1 and len(hs) > 1:
-        events.append(["mmove"])
+        events = ["mmove"] + events
 
     if len(events) == 0:
         haus = move(haus, [omembers[-1]], hs)
@@ -294,7 +294,6 @@ def summary():
     p(tab)
 
 # main code
-
 print()
 
 length = len(members)
