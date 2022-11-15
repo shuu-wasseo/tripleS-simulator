@@ -6,7 +6,6 @@ from prettytable import PrettyTable
 from colors import color
 from plotext import tw
 
-members = []
 omembers = []
 
 open('output.txt', 'w')
