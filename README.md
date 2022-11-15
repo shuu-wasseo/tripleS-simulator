@@ -26,7 +26,7 @@ before you begin, remember to input the necessary data in config.toml.
 default values that can serve as examples have been provided and the simulator can run with these values.
 
 ## haus.json
-this customisable json file represents the structure of the HAUS. with the default values, the normal HAUS can house 12 people while the seoul HAUS can house 8 people.
+this customisable json file represents the structure of the HAUS. with the default values, the normal HAUS and seoul HAUS can house 12 people each.
 
 ### normal HAUS
 other than the seoul HAUS, each haus contains multiple rooms in the form of a dictionary, each containing a "upper bunk", "lower bunk" and optionally, a "single" bed. the default structure of the haus (based on the original tripleS) has been provided.
