@@ -34,7 +34,7 @@ other than the seoul HAUS, each haus contains multiple rooms in the form of a di
 ### seoul HAUS
 the names of these rooms are typically based on the number of beds in the room, while rooms with the same number of beds are differentiated by a suffix, separated from the original nunumber of beds with a "-". the beds in the rooms here are strictly bunk beds at the moment.
 
-for example, the default seoul HAUS contains 3 rooms, "2-1", "2-2" and "4". the "2", "2" and "4" in these names indicates the number of beds there will be while "-1" and "-2" are simply used to differentiate the rooms.
+for example, the default seoul HAUS contains 5 rooms, "2-1", "2-2", "2-3", "2-4" and "4". the "2"s and "4" in these names indicates the number of beds there will be while "-1", "-2", etc. are simply used to differentiate the rooms.
 
 ## events
 in the tripleS simulator, there are multiple types of events. as of now, we only feature two major events, mass moving and (grand) gravity.
