@@ -28,6 +28,27 @@ default values that can serve as examples have been provided and the simulator c
 ## haus.json
 this customisable json file represents the structure of the HAUS. with the default values, the normal HAUS and seoul HAUS can house 12 people each.
 
+structure of the haus.json file:
+```
+{
+    "haus1" : {
+        "room1" : {
+            "upper bunk" : "",
+            "lower bunk" : ""
+        }
+    },
+    "seoul" : {
+        "4" : {
+            "upper bunk 1": "",
+            "lower bunk 1": "",
+            "upper bunk 2": "",
+            "lower bunk 2": ""
+        }
+    }
+}
+```
+do note that the seoul HAUS **must** be named "seoul".
+
 ### normal HAUS
 other than the seoul HAUS, each haus contains multiple rooms in the form of a dictionary, each containing a "upper bunk", "lower bunk" and optionally, a "single" bed. the default structure of the haus (based on the original tripleS) has been provided.
 
