@@ -33,16 +33,17 @@ structure of the haus.json file:
 {
     "haus1" : {
         "room1" : {
-            "upper bunk" : "",
-            "lower bunk" : ""
+            "bed1" : "",
+            "bed2" : "",
+            "bed3" : ""
         }
     },
     "seoul" : {
         "4" : {
-            "upper bunk 1": "",
-            "lower bunk 1": "",
-            "upper bunk 2": "",
-            "lower bunk 2": ""
+            "bed1" : "",
+            "bed2" : "",
+            "bed3" : "",
+            "bed4" : ""
         }
     }
 }
