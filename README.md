@@ -32,7 +32,7 @@ this customisable json file represents the structure of the HAUS. with the defau
 other than the seoul HAUS, each haus contains multiple rooms in the form of a dictionary, each containing a "upper bunk", "lower bunk" and optionally, a "single" bed. the default structure of the haus (based on the original tripleS) has been provided.
 
 ### seoul HAUS
-due to the much less detailed structure of the seoul HAUS, the "seoul" dictionary contains multiple rooms in the form of a list. the names of these rooms are typically based on the number of beds in the room, while rooms with the same number of beds are differentiated by a suffix, separated from the original nunumber of beds with a "-".
+the names of these rooms are typically based on the number of beds in the room, while rooms with the same number of beds are differentiated by a suffix, separated from the original nunumber of beds with a "-". the beds in the rooms here are strictly bunk beds at the moment.
 
 for example, the default seoul HAUS contains 3 rooms, "2-1", "2-2" and "4". the "2", "2" and "4" in these names indicates the number of beds there will be while "-1" and "-2" are simply used to differentiate the rooms.
 
