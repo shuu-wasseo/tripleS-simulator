@@ -127,7 +127,28 @@ def move(house, membs, hs, move_event=""):
     if len(membs) > 1:
         p(tab)
     return haus
-    
+
+
+def perms(ls): # credits to geeksforgeeks i could not bother to do this on my own
+    if len(ls) == 0:
+        return []
+ 
+    if len(ls) == 1:
+        return [ls]
+ 
+    l = []
+ 
+    for i in range(len(ls)):
+       m = ls[i]
+ 
+       remLst = ls[:i] + ls[i+1:]
+ 
+       # Generating all permutations where m is first
+       # element
+       for p in perms(remLst):
+           l.append([m] + p)
+    return l
+
 def gravity(membs, units):
     tab = PrettyTable(units)
     ms = membs.copy()
@@ -142,6 +163,20 @@ def gravity(membs, units):
             else:
                 pair.append(picked)
                 membs.remove(picked)
+        if not config["random_gravity"]:
+            subt = PrettyTable(["number"] + units)
+            for n in range(len(perms(pair))):
+                subt.add_row([n] + [pm(m) for m in perms(pair)[n]])
+            print(f"\nround {x+1}:")
+            print(subt)
+            while 1:
+                pick = input("pick the number of your desired permutation: ")
+                try:
+                    pair = perms(pair)[int(pick)]
+                except:
+                    pass
+                else:
+                    break
         tab.add_row([pm(m) for m in pair])
         for y in range(len(units)):
             try:
@@ -203,7 +238,7 @@ def brk():
 
 def event(haus, omembers, number, hs, events, gravities, mmoves, tab, wave):
     if number == cbeds(uhaus, hs[:-1]) + 1 and len(hs) > 1:
-        events = ["mmove"] + events
+        events = [["mmove"]] + events
 
     if len(events) == 0:
         haus = move(haus, [omembers[-1]], hs)
@@ -212,7 +247,7 @@ def event(haus, omembers, number, hs, events, gravities, mmoves, tab, wave):
         except:
             bed = ""
         tab.add_row([pm(omembers[-1]), color(omembers[-1].color, "white", omembers[-1].color), bed])
-    
+      
     moved = False
             
     for e in events: 
@@ -285,7 +320,7 @@ def summary():
             else:
                 beds += ["", "", ""]
         try:
-            seoul = [m.seoul.room, m.seoul.bed]
+            seoul = [croom(m.seoul.room), m.seoul.bed]
         except:
             seoul = ["", ""]
         row = [m.name, prefix + str(m.serial), color(m.color, "white", m.color)] + m.gravity + beds + seoul
@@ -307,7 +342,7 @@ for x in range(len(members)):
     events = []
 
     # add member to database
-    if config["random"]:
+    if config["random_members"]:
         nmemb = choice(members)
     else:
         nmemb = members[0]
