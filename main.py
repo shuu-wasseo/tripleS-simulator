@@ -150,9 +150,20 @@ def perms(ls): # credits to geeksforgeeks i could not bother to do this on my ow
     return l
 
 def gravity(membs, units):
+    p("\ngrand gravity time!")
+    tab = PrettyTable(["unit", "description"])
+    for x in units:
+        found = False
+        for y in config["units"]:
+            if y[0] == x:
+                tab.add_row(y)
+                found = True
+                break
+        if not found:
+            tab.add_row([x, "null"])
+    p(tab)
     tab = PrettyTable(units)
     ms = membs.copy()
-    p("\ngrand gravity time!")
     for x in range(math.ceil(len(membs)/len(units))):
         pair = []
         for y in range(len(units)):
