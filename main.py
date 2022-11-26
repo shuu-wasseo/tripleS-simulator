@@ -17,9 +17,10 @@ config = toml.load(open("config.toml"))
 prefix = config["prefix"]
 members = config["members"]
 colors = config["colors"]
+sgrav = json.load(open("haus.json"))["sgravity"]
 
 # HAUS classes + methods
-ohaus = json.load(open("haus.json"))
+ohaus = json.load(open("haus.json"))["haus"]
 
 uhaus = ohaus.copy()
     
@@ -149,8 +150,8 @@ def perms(ls): # credits to geeksforgeeks i could not bother to do this on my ow
            l.append([m] + p)
     return l
 
-def gravity(membs, units):
-    p("\ngrand gravity time!")
+def ugravity(membs, units):
+    p("\ngrand unit gravity time!")
     tab = PrettyTable(["unit", "description"])
     for x in units:
         found = False
@@ -174,7 +175,7 @@ def gravity(membs, units):
             else:
                 pair.append(picked)
                 membs.remove(picked)
-        if not config["random_gravity"]:
+        if not config["random_ugravity"]:
             subt = PrettyTable(["number"] + units)
             for n in range(len(perms(pair))):
                 subt.add_row([n] + [pm(m) for m in perms(pair)[n]])
@@ -195,8 +196,96 @@ def gravity(membs, units):
             except:
                 pass
     p(tab)
-    return ms
+    return ms        
 
+def tree(lis):
+    dic = {"final": {"rem": []}}
+    rounds = []
+
+    def todic(lis, pround, depth):
+        try:
+            rounds[depth]
+        except:
+            rounds.append(0)
+        pround["rem"] = lis
+        for x in pround["rem"].copy():
+            if type(x) == list:
+                pround[f"round {rounds[depth]+1}"] = {"rem": x}
+                rounds[depth] += 1
+                pround["rem"].remove(x)
+        for sround in pround.copy():
+            if sround != "rem":
+                pround[sround] = todic(pround[sround]["rem"], pround[sround], depth+1)
+                if len(pround[sround].keys()) == 1:
+                    pround[sround] = pround[sround]["rem"]
+        
+        return pround
+
+    return todic(lis, dic["final"], 0)
+
+def depth(d): # i stole this code from someone on stackoverflow
+    if isinstance(d, dict):
+        return 1 + (max(map(depth, d.values())) if d else 0)
+    return 0
+
+def rnd(dic, count, goal, r):
+    thing = None
+    if count < goal and type(dic) == dict or (count == 0 and goal == 0):
+        for x in dic.copy():
+            if x != "rem":
+                if count == goal-1 or (count == 0 and goal == 0):
+                    if (count == 0 and goal == 0):
+                        ch = dic
+                    else:
+                        ch = dic[x]
+                    table = PrettyTable(["number", "song"])
+                    table.add_row([0, ch[0]])
+                    table.add_row([1, ch[1]])
+                    p(f"gravity depth {goal}, round {r}")
+                    p(table)
+                    if config["random_sgravity"]:
+                        while 1:
+                            try:
+                                chosen = ch[int(input("pick the number of your desired song: "))]
+                            except:
+                                pass
+                            else:
+                                break
+                    else:
+                        chosen = choice(ch)
+                    if count == 0 and goal == 0:
+                        p(f"{chosen} has been picked as the title song for your group!")
+                    else:
+                        p(f"{chosen} has been picked.\n")
+                    if not (count == 0 and goal == 0):
+                        dic["rem"].append(chosen)
+                        del dic[x]
+                        thing = dic["rem"]
+                        if len(dic.keys()) == 1:
+                            dic = dic["rem"]
+                    return dic, thing
+                else:
+                    if type(dic[x]) == dict and list(dic[x].keys()) != ["rem"]:
+                        dic[x], thing = rnd(dic[x], count+1, goal, r)
+                        if thing:
+                            break
+                    else:
+                        continue
+
+    return dic, thing
+
+def sgravity(songs):
+    p("\ngrand song gravity time!")
+    tr = tree(songs)
+    d = depth(tr)
+    for x in range(d, -1, -1):
+        count = 0
+        while 1:
+            count += 1
+            tr, thing = rnd(tr, 0, x, count)
+            if not thing:
+                break
+            
 def phaus(haus, seoul=False, final=False):
     if seoul:
         str = f"\nHAUS update: (seoul)"
@@ -275,7 +364,7 @@ def event(haus, omembers, number, hs, events, gravities, mmoves, tab, wave):
                 haus = move(haus, omembers, hs, hs[-1])
                 phaus(haus)
                 p(brk())
-            case "gravity":
+            case "ugravity" | "sgravity":
                 gravities += 1
                 haus = move(haus, [omembers[-1]], hs)
                 if not moved:
@@ -286,7 +375,10 @@ def event(haus, omembers, number, hs, events, gravities, mmoves, tab, wave):
                     p(tab)
                     tab = PrettyTable(["member", "color", "bed"])
                 phaus(haus)
-                omembers = gravity(omembers, e[1])
+                if e[0] == "ugravity":
+                    omembers = ugravity(omembers, e[1])
+                else:
+                    sgravity(e[1])
                 haus = move(haus, omembers, "seoul")
                 phaus(haus, True)
                 p(brk())
@@ -378,9 +470,13 @@ for x in range(len(members)):
             hs = hauses[:y+1]
             break
 
-    for grav in config["gravity"]:
+    for grav in config["ugravity"]:
         if x+1 == int(grav[0]):
-            events.append(["gravity", grav[1:]])
+            events.append(["ugravity", grav[1:]])
+
+    for grav in sgrav:
+        if x+1 == int(grav):
+            events.append(["sgravity", sgrav[grav]])
     
     om = omembers.copy()
 
