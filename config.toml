@@ -1,13 +1,27 @@
+# members
 "prefix" = "S"
-"members" = ["ysy", "jhr", "ljw", "kcy", "kyy", "ksm", "knk", "gyb", "ked"]
-"random" = false
-"gravity" = [
+"members" = ["ysy", "jhr", "ljw", "kcy", "kyy", "ksm", "knk", "gyb", "ked", "???"]
+"random_members" = false
+
+# units and gravity
+"units" = [
+    ["aaa", "acid angel from asia"],
+    ["kre", "krystal eyes"]
+]
+
+"random_sgravity" = true
+
+"ugravity" = [
     ["8", "aaa", "kre"]
 ]
+"random_ugravity" = true
+
+# colors for rooms
 "colors" = [
     ["orange", "#ff8000"],
     ["yellow", "#ffff00"],
     ["mint", "#00ff80"],
+    ["blue", "#0000ff"],
     ["purple", "#8000ff"],
     ["pink", "#ff0088"]
 ]
