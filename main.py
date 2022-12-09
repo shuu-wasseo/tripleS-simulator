@@ -17,7 +17,21 @@ config = toml.load(open("config.toml"))
 prefix = config["prefix"]
 members = config["members"]
 colors = config["colors"]
-sgrav = json.load(open("haus.json"))["sgravity"]
+sgrav = config["sgravity"]
+
+def split(lis, count, goal):
+    if count == 0:
+        lis = [lis]
+    if count < goal-1:
+        nlis = []
+        for x in lis:
+            mid = int(len(x)/2)
+            x = split([x[:mid], x[mid:]], count+1, goal)
+            nlis.append(x)
+        lis = nlis
+    if count == 0:
+        return lis[0]
+    return lis
 
 # HAUS classes + methods
 ohaus = json.load(open("haus.json"))["haus"]
@@ -276,8 +290,12 @@ def rnd(dic, count, goal, r):
 
 def sgravity(songs):
     p("\ngrand song gravity time!")
-    tr = tree(songs)
-    d = depth(tr)
+    if math.log(len(songs), 2) % 1 != 0:
+        print("number of songs in sgravity should have a power of 2.")
+        exit()
+    else:
+        tr = tree(split(songs, 0, math.log(len(songs), 2)))
+    d = int(math.log(len(songs), 2)) 
     for x in range(d, -1, -1):
         count = 0
         while 1:
@@ -474,9 +492,9 @@ for x in range(len(members)):
         if x+1 == int(grav[0]):
             events.append(["ugravity", grav[1:]])
 
-    for grav in sgrav:
-        if x+1 == int(grav):
-            events.append(["sgravity", sgrav[grav]])
+    for grav in config["sgravity"]:
+        if x+1 == int(grav[0]):
+            events.append(["sgravity", grav[1:]])
     
     om = omembers.copy()
 
